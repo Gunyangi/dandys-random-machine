@@ -107,6 +107,45 @@
     .go-btn:active { transform: scale(0.97); }
     .go-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
+    /* TOGGLE */
+    .toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 0.5px solid var(--border2);
+      background: var(--surface2);
+      color: var(--text3);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .toggle-btn:hover { border-color: var(--accent); color: var(--text2); }
+    .toggle-btn.on { border-color: var(--accent); background: linear-gradient(135deg, #7c6cff22, #a89bff11); color: var(--accent2); }
+    .toggle-dot {
+      width: 28px; height: 16px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle-btn.on .toggle-dot { background: var(--accent); border-color: var(--accent); }
+    .toggle-dot::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--text3);
+      top: 2px; left: 2px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle-btn.on .toggle-dot::after { transform: translateX(12px); background: #fff; }
+
     /* WARN */
     .warn { font-size: 12px; color: var(--warn); margin-top: 6px; min-height: 16px; }
 
@@ -160,7 +199,14 @@
             <option value="3" selected>3</option>
             <option value="4">4</option>
             <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
           </select>
+          <button class="toggle-btn" id="nodup-btn" onclick="toggleNoDup()">
+            <div class="toggle-dot"></div>
+            중복 없음
+          </button>
           <button class="go-btn" id="go-btn" onclick="startSpin()">Go!</button>
         </div>
         <div class="warn" id="warn"></div>
@@ -178,8 +224,16 @@
   const warn = document.getElementById('warn');
   const goBtn = document.getElementById('go-btn');
   const countSelect = document.getElementById('count-select');
+  const nodupBtn = document.getElementById('nodup-btn');
+  let noDup = false;
 
   function getToons() { return TOONS; }
+
+  function toggleNoDup() {
+    noDup = !noDup;
+    nodupBtn.classList.toggle('on', noDup);
+    warn.textContent = '';
+  }
 
   countSelect.addEventListener('change', () => {
     renderSlots(parseInt(countSelect.value));
@@ -253,15 +307,17 @@
     const n = parseInt(countSelect.value);
     warn.textContent = '';
 
-    if (toons.length < n) {
-      warn.textContent = `툰이 ${n}명 이상 있어야 해! (지금 ${toons.length}명)`;
+    if (noDup && toons.length < n) {
+      warn.textContent = `중복 없음 모드: 툰이 ${n}명 이상 있어야 해! (지금 ${toons.length}명)`;
       return;
     }
 
     goBtn.disabled = true;
     renderSlots(n);
 
-    const picked = shuffle(toons).slice(0, n);
+    const picked = noDup
+      ? shuffle(toons).slice(0, n)
+      : Array.from({length: n}, () => toons[Math.floor(Math.random() * toons.length)]);
     const spinPool = toons.length > 1 ? toons : [toons[0]];
 
     const promises = [];
