@@ -205,7 +205,7 @@
           </select>
           <button class="toggle-btn" id="nodup-btn" onclick="toggleNoDup()">
             <div class="toggle-dot"></div>
-            중복 없음
+            중복 허용
           </button>
           <button class="go-btn" id="go-btn" onclick="startSpin()">Go!</button>
         </div>
@@ -225,13 +225,13 @@
   const goBtn = document.getElementById('go-btn');
   const countSelect = document.getElementById('count-select');
   const nodupBtn = document.getElementById('nodup-btn');
-  let noDup = false;
+  let allowDup = false;
 
   function getToons() { return TOONS; }
 
   function toggleNoDup() {
-    noDup = !noDup;
-    nodupBtn.classList.toggle('on', noDup);
+    allowDup = !allowDup;
+    nodupBtn.classList.toggle('on', allowDup);
     warn.textContent = '';
   }
 
@@ -307,17 +307,17 @@
     const n = parseInt(countSelect.value);
     warn.textContent = '';
 
-    if (noDup && toons.length < n) {
-      warn.textContent = `중복 없음 모드: 툰이 ${n}명 이상 있어야 해! (지금 ${toons.length}명)`;
+    if (!allowDup && toons.length < n) {
+      warn.textContent = `툰이 ${n}명 이상 있어야 해! (지금 ${toons.length}명)`;
       return;
     }
 
     goBtn.disabled = true;
     renderSlots(n);
 
-    const picked = noDup
-      ? shuffle(toons).slice(0, n)
-      : Array.from({length: n}, () => toons[Math.floor(Math.random() * toons.length)]);
+    const picked = allowDup
+      ? Array.from({length: n}, () => toons[Math.floor(Math.random() * toons.length)])
+      : shuffle(toons).slice(0, n);
     const spinPool = toons.length > 1 ? toons : [toons[0]];
 
     const promises = [];
