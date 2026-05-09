@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>댄디스월드 툰 랜덤 머-신</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d14;
+      --surface: #16161f;
+      --surface2: #1e1e2a;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.15);
+      --text: #f0eeff;
+      --text2: #9b97b8;
+      --text3: #5c5878;
+      --accent: #7c6cff;
+      --accent2: #a89bff;
+      --warn: #ff6b6b;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px;
+    }
+
+    .app { width: 100%; max-width: 820px; display: flex; flex-direction: column; gap: 18px; }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+    }
+    .logo { width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(124,108,255,0.5)); }
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #a89bff, #ff8fcb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* MAIN LAYOUT */
+    .main { display: flex; gap: 16px; align-items: flex-start; }
+    .left { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .right { width: 210px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+    }
+
+    .label { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+
+    /* ROW */
+    .row { display: flex; align-items: center; gap: 12px; }
+
+    /* SELECT */
+    select {
+      appearance: none;
+      background: var(--surface2);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 15px;
+      padding: 8px 32px 8px 12px;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239b97b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* GO BUTTON */
+    .go-btn {
+      flex: 1;
+      padding: 9px 20px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      border-radius: var(--radius-sm);
+      border: 0.5px solid var(--accent);
+      background: linear-gradient(135deg, #7c6cff22, #a89bff11);
+      color: var(--accent2);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .go-btn:hover { background: linear-gradient(135deg, #7c6cff44, #a89bff22); transform: scale(1.02); }
+    .go-btn:active { transform: scale(0.97); }
+    .go-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* WARN */
+    .warn { font-size: 12px; color: var(--warn); margin-top: 6px; min-height: 16px; }
+
+    /* SLOTS */
+    .slots-grid { display: grid; gap: 10px; }
+    .slot-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0 18px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .slot-card.done { border-color: var(--accent); }
+    .slot-num { font-size: 12px; color: var(--text3); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .slot-window { overflow: hidden; height: 32px; flex: 1; position: relative; }
+    .slot-inner { position: absolute; width: 100%; }
+    .slot-item {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .slot-item.spinning { color: var(--text3); font-weight: 400; font-size: 14px; }
+    .slot-placeholder { font-size: 14px; color: var(--text3); }
+
+    /* RIGHT PANEL */
+    .right-label { font-size: 12px; color: var(--text2); padding: 0 2px; }
+    textarea {
+      width: 100%;
+      height: 300px;
+      resize: vertical;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 10px 12px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); }
+    .toon-count { font-size: 11px; color: var(--text3); text-align: right; padding: 0 2px; }
+
+    @media (max-width: 580px) {
+      .main { flex-direction: column; }
+      .right { width: 100%; }
+      textarea { height: 160px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <img class="logo" src="./01_Danflower.png" alt="Danflower" />
+    <div class="title">댄디스월드 툰 랜덤 머-신</div>
+  </div>
+
+  <div class="main">
+    <div class="left">
+
+      <div class="card">
+        <div class="label">몇 개의 툰이 필요해?</div>
+        <div class="row">
+          <select id="count-select">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+          <button class="go-btn" id="go-btn" onclick="startSpin()">Go!</button>
+        </div>
+        <div class="warn" id="warn"></div>
+      </div>
+
+      <div id="slots-wrap" class="slots-grid"></div>
+
+    </div>
+
+    <div class="right">
+      <div class="right-label">툰 목록 입력 (엔터로 구분)</div>
+      <textarea id="toon-input" placeholder="Astro&#10;Beanie&#10;Cosmo&#10;Dandy&#10;..."></textarea>
+      <div class="toon-count" id="toon-count">0명</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'dandys_toon_list_v1';
+  const toonInput = document.getElementById('toon-input');
+  const toonCount = document.getElementById('toon-count');
+  const slotsWrap = document.getElementById('slots-wrap');
+  const warn = document.getElementById('warn');
+  const goBtn = document.getElementById('go-btn');
+  const countSelect = document.getElementById('count-select');
+
+  function getToons() {
+    return toonInput.value.split('\n').map(s => s.trim()).filter(Boolean);
+  }
+
+  function updateCount() {
+    toonCount.textContent = getToons().length + '명';
+  }
+
+  function saveToons() {
+    try { localStorage.setItem(STORAGE_KEY, toonInput.value); } catch(e) {}
+  }
+
+  function loadToons() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) { toonInput.value = saved; updateCount(); }
+    } catch(e) {}
+  }
+
+  toonInput.addEventListener('input', () => { updateCount(); saveToons(); });
+
+  countSelect.addEventListener('change', () => {
+    renderSlots(parseInt(countSelect.value));
+    warn.textContent = '';
+  });
+
+  function renderSlots(n) {
+    slotsWrap.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const div = document.createElement('div');
+      div.className = 'slot-card';
+      div.id = 'slot-card-' + i;
+      div.innerHTML = `
+        <span class="slot-num">#${i+1}</span>
+        <div class="slot-window">
+          <div class="slot-inner" id="slot-inner-${i}">
+            <div class="slot-item slot-placeholder">?</div>
+          </div>
+        </div>`;
+      slotsWrap.appendChild(div);
+    }
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function spinSlot(slotInner, slotCard, spinPool, finalName, delay) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const TICKS = 20;
+        const DURATION = TICKS * 55;
+        const itemH = 32;
+
+        const items = [];
+        for (let i = 0; i < TICKS; i++) {
+          items.push(spinPool[Math.floor(Math.random() * spinPool.length)]);
+        }
+        items.push(finalName);
+
+        slotInner.style.transition = 'none';
+        slotInner.style.transform = 'translateY(0)';
+        slotInner.innerHTML = items.map((name, idx) => {
+          const cls = idx === items.length - 1 ? 'slot-item' : 'slot-item spinning';
+          return `<div class="${cls}">${name}</div>`;
+        }).join('');
+
+        const targetY = -((items.length - 1) * itemH);
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            slotInner.style.transition = `transform ${DURATION}ms cubic-bezier(0.12, 0.8, 0.3, 1.0)`;
+            slotInner.style.transform = `translateY(${targetY}px)`;
+            setTimeout(() => {
+              slotCard.classList.add('done');
+              resolve();
+            }, DURATION + 50);
+          });
+        });
+      }, delay);
+    });
+  }
+
+  async function startSpin() {
+    const toons = getToons();
+    const n = parseInt(countSelect.value);
+    warn.textContent = '';
+
+    if (toons.length === 0) {
+      warn.textContent = '오른쪽에 툰 목록을 먼저 입력해줘!';
+      return;
+    }
+    if (toons.length < n) {
+      warn.textContent = `툰이 ${n}명 이상 있어야 해! (지금 ${toons.length}명)`;
+      return;
+    }
+
+    goBtn.disabled = true;
+    renderSlots(n);
+
+    const picked = shuffle(toons).slice(0, n);
+    const spinPool = toons.length > 1 ? toons : [toons[0]];
+
+    const promises = [];
+    for (let i = 0; i < n; i++) {
+      const inner = document.getElementById('slot-inner-' + i);
+      const card = document.getElementById('slot-card-' + i);
+      promises.push(spinSlot(inner, card, spinPool, picked[i], i * 300));
+    }
+
+    await Promise.all(promises);
+    goBtn.disabled = false;
+  }
+
+  renderSlots(parseInt(countSelect.value));
+  loadToons();
+</script>
+</body>
+</html>
