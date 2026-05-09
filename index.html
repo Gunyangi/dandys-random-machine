@@ -58,9 +58,7 @@
     }
 
     /* MAIN LAYOUT */
-    .main { display: flex; gap: 16px; align-items: flex-start; }
-    .left { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-    .right { width: 210px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+    .main { display: flex; flex-direction: column; gap: 14px; }
 
     /* CARD */
     .card {
@@ -142,30 +140,6 @@
     .slot-item.spinning { color: var(--text3); font-weight: 400; font-size: 14px; }
     .slot-placeholder { font-size: 14px; color: var(--text3); }
 
-    /* RIGHT PANEL */
-    .right-label { font-size: 12px; color: var(--text2); padding: 0 2px; }
-    textarea {
-      width: 100%;
-      height: 300px;
-      resize: vertical;
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 13px;
-      line-height: 1.7;
-      padding: 10px 12px;
-      font-family: inherit;
-      transition: border-color 0.2s;
-    }
-    textarea:focus { outline: none; border-color: var(--accent); }
-    .toon-count { font-size: 11px; color: var(--text3); text-align: right; padding: 0 2px; }
-
-    @media (max-width: 580px) {
-      .main { flex-direction: column; }
-      .right { width: 100%; }
-      textarea { height: 160px; }
-    }
   </style>
 </head>
 <body>
@@ -177,8 +151,6 @@
   </div>
 
   <div class="main">
-    <div class="left">
-
       <div class="card">
         <div class="label">몇 개의 툰이 필요해?</div>
         <div class="row">
@@ -195,47 +167,19 @@
       </div>
 
       <div id="slots-wrap" class="slots-grid"></div>
-
-    </div>
-
-    <div class="right">
-      <div class="right-label">툰 목록 입력 (엔터로 구분)</div>
-      <textarea id="toon-input" placeholder="Astro&#10;Beanie&#10;Cosmo&#10;Dandy&#10;..."></textarea>
-      <div class="toon-count" id="toon-count">0명</div>
-    </div>
   </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'dandys_toon_list_v1';
-  const toonInput = document.getElementById('toon-input');
-  const toonCount = document.getElementById('toon-count');
+  const TOONS = ['박스텐','파피','브라이트니','슈림포','로저','구브','스크랩','투들','래즐대즐','티샤','플러터','티건','글리스텐','코스모','핀','지지','코니','루이','야타','블로트','브러샤','스쿼름','아스트로','페블','비','셸리','스프라우트','댄디','다일','루디','진저','콜','보베트','에그슨','플라이트','코코아','배시','리베카','소울베스터','이클립스','고우디'];
+
   const slotsWrap = document.getElementById('slots-wrap');
   const warn = document.getElementById('warn');
   const goBtn = document.getElementById('go-btn');
   const countSelect = document.getElementById('count-select');
 
-  function getToons() {
-    return toonInput.value.split('\n').map(s => s.trim()).filter(Boolean);
-  }
-
-  function updateCount() {
-    toonCount.textContent = getToons().length + '명';
-  }
-
-  function saveToons() {
-    try { localStorage.setItem(STORAGE_KEY, toonInput.value); } catch(e) {}
-  }
-
-  function loadToons() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) { toonInput.value = saved; updateCount(); }
-    } catch(e) {}
-  }
-
-  toonInput.addEventListener('input', () => { updateCount(); saveToons(); });
+  function getToons() { return TOONS; }
 
   countSelect.addEventListener('change', () => {
     renderSlots(parseInt(countSelect.value));
@@ -309,10 +253,6 @@
     const n = parseInt(countSelect.value);
     warn.textContent = '';
 
-    if (toons.length === 0) {
-      warn.textContent = '오른쪽에 툰 목록을 먼저 입력해줘!';
-      return;
-    }
     if (toons.length < n) {
       warn.textContent = `툰이 ${n}명 이상 있어야 해! (지금 ${toons.length}명)`;
       return;
@@ -336,7 +276,6 @@
   }
 
   renderSlots(parseInt(countSelect.value));
-  loadToons();
 </script>
 </body>
 </html>
