@@ -46,9 +46,11 @@
       border-radius: var(--radius);
       padding: 14px 20px;
     }
-    .logo { width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(124,108,255,0.5)); }
+    .logo { width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(124,108,255,0.5)); transition: transform 0.15s; }
+    .logo:hover { transform: scale(1.08); }
+    .header-link { display: flex; align-items: center; text-decoration: none; }
     .title {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       letter-spacing: -0.5px;
       background: linear-gradient(90deg, #a89bff, #ff8fcb);
@@ -56,6 +58,21 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+    .subtitle {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 3px;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .subtitle:hover { color: var(--accent2); }
+    .footer {
+      text-align: center;
+      padding: 8px 0 4px;
+      font-size: 11px;
+    }
+    .footer a { color: var(--text3); text-decoration: none; transition: color 0.15s; }
+    .footer a:hover { color: var(--accent2); }
 
     /* MAIN LAYOUT */
     .main { display: flex; flex-direction: column; gap: 14px; }
@@ -185,8 +202,13 @@
 <div class="app">
 
   <div class="header">
-    <img class="logo" src="./01_Danflower.png" alt="Danflower" />
-    <div class="title">댄디스월드 툰 랜덤 머-신</div>
+    <a class="header-link" href="https://www.youtube.com/channel/UCOO5n4c8OSqhPv8nQvPm-oA" target="_blank" rel="noopener">
+      <img class="logo" src="./01_Danflower.png" alt="Danflower" />
+    </a>
+    <div>
+      <div class="title">댄디스월드 툰 랜덤 머-신</div>
+      <a class="subtitle" href="https://www.youtube.com/channel/UCOO5n4c8OSqhPv8nQvPm-oA" target="_blank" rel="noopener">by 그냥이</a>
+    </div>
   </div>
 
   <div class="main">
@@ -213,6 +235,10 @@
       </div>
 
       <div id="slots-wrap" class="slots-grid"></div>
+  </div>
+
+  <div class="footer">
+    <a href="https://www.youtube.com/channel/UCOO5n4c8OSqhPv8nQvPm-oA" target="_blank" rel="noopener">Powered by 그냥이</a>
   </div>
 
 </div>
